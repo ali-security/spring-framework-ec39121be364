@@ -47,6 +47,7 @@ import okhttp3.mockwebserver.MockWebServer;
 import okhttp3.mockwebserver.RecordedRequest;
 import org.eclipse.jetty.client.Request;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -1331,6 +1332,7 @@ class WebClientIntegrationTests {
 	}
 
 	@Test  // gh-36158
+	@Disabled("Flaky; disabled upstream in commit 7b087d1a6c (gh-36589)")
 	void reactorNettyAttributes() {
 		startServer(new ReactorClientHttpConnector());
 

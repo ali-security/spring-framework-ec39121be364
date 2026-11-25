@@ -25,6 +25,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.aopalliance.intercept.MethodInterceptor;
 import org.awaitility.Awaitility;
@@ -56,7 +57,7 @@ class AsyncExecutionTests {
 
 	private static String originalThreadName;
 
-	private static volatile int listenerCalled = 0;
+	private static final AtomicInteger listenerCalled = new AtomicInteger();
 
 	private static int listenerConstructed = 0;
 
@@ -64,7 +65,7 @@ class AsyncExecutionTests {
 	@BeforeEach
 	void setUp() {
 		originalThreadName = Thread.currentThread().getName();
-		listenerCalled = 0;
+		listenerCalled.set(0);
 		listenerConstructed = 0;
 	}
 
@@ -341,7 +342,7 @@ class AsyncExecutionTests {
 		Awaitility.await()
 					.atMost(5, TimeUnit.SECONDS)
 					.pollInterval(10, TimeUnit.MILLISECONDS)
-					.until(() -> listenerCalled == 1);
+					.until(() -> listenerCalled.get() == 1);
 		context.close();
 	}
 
@@ -359,7 +360,7 @@ class AsyncExecutionTests {
 		Awaitility.await()
 					.atMost(5, TimeUnit.SECONDS)
 					.pollInterval(10, TimeUnit.MILLISECONDS)
-					.until(() -> listenerCalled == 2);
+					.until(() -> listenerCalled.get() == 2);
 		assertThat(listenerConstructed).isEqualTo(1);
 	}
 
@@ -379,7 +380,7 @@ class AsyncExecutionTests {
 		Awaitility.await()
 					.atMost(5, TimeUnit.SECONDS)
 					.pollInterval(10, TimeUnit.MILLISECONDS)
-					.until(() -> listenerCalled == 2);
+					.until(() -> listenerCalled.get() == 2);
 		assertThat(listenerConstructed).isEqualTo(2);
 	}
 
@@ -683,7 +684,7 @@ class AsyncExecutionTests {
 		@Override
 		@Async
 		public void onApplicationEvent(ApplicationEvent event) {
-			listenerCalled++;
+			listenerCalled.incrementAndGet();
 			assertThat(Thread.currentThread().getName()).isNotEqualTo(originalThreadName);
 		}
 	}
@@ -698,7 +699,7 @@ class AsyncExecutionTests {
 
 		@Override
 		public void onApplicationEvent(ApplicationEvent event) {
-			listenerCalled++;
+			listenerCalled.incrementAndGet();
 			assertThat(Thread.currentThread().getName()).isNotEqualTo(originalThreadName);
 		}
 	}
